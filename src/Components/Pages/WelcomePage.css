@@ -1,0 +1,16 @@
+.welcome-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.welcome-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.users-toggle-button {
+    font-size: 16px;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+}

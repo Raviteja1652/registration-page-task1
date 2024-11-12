@@ -1,0 +1,114 @@
+.users-data {
+    padding: 20px;
+    max-width: 900px;
+    margin: 1rem auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.data-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-item:hover {
+    background-color: #f1f1f1;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.user-email {
+    font-size: 14px;
+    color: #555;
+}
+
+.user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.user-actions button {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #ff3b3b;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #e60000;
+}
+
+
+@media (max-width: 768px) {
+    .users-data {
+        padding: 15px;
+    }
+
+    .user-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-actions {
+        margin-top: 10px;
+    }
+
+    .user-actions button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-name {
+        font-size: 16px;
+    }
+
+    .user-email {
+        font-size: 12px;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
