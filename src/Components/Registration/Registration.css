@@ -31,11 +31,46 @@
     cursor: pointer;
 }
 
-.toggle-pass-visibility {
-    margin-left: 0.7rem;
-    margin-top: 0;
-    padding: 0;
-    color: rgb(96, 96, 239);
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+}
+
+.error-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.close-button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 3px;
     cursor: pointer;
 }
 

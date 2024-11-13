@@ -5,6 +5,8 @@ import { useHistory, useParams, useLocation } from 'react-router-dom'
 import { auth, db } from '../../firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, get, set, update } from 'firebase/database';
+import { validateEmail, validatePassword } from '../../helperfunction'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const Registration = () => {
   const initialState = {
@@ -24,6 +26,7 @@ const Registration = () => {
   const [cities, setCities] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({password: '', email: ''})
+  const [errorMessage, setErrorMessage] = useState('')
   const history = useHistory()
   const { id } = useParams()
   const location = useLocation()
@@ -42,23 +45,7 @@ const Registration = () => {
       .catch(error => console.log(error))
   }, [id, location.state])
 
-  const validateEmail = (mail_id) => {
-    if (!mail_id.includes('@')) return false
-    const parts = mail_id.split('@')
-    if (parts.length !== 2 || !parts[1].includes('.') || parts[1].length < 5) return false
-    
-    return parts[1].split('.').every(part => part.length > 1)
-  }
-
-  const validatePassword = (password) => {
-    if (password.length < 7) return false
-    let hasUpper = false, hasSpecial = false
-    for (let char of password) {
-      if (char === char.toUpperCase() && isNaN(char)) hasUpper = true
-      if (!/[a-zA-Z0-9]/.test(char)) hasSpecial = true
-    }
-    return hasSpecial && hasUpper
-  };
+  const closeErrorModal = () => setErrorMessage('')
 
   const changeHandler = async (e) => {
     const { id, value } = e.target
@@ -86,7 +73,6 @@ const Registration = () => {
       }
     }
   };
-
 
   const submitHandler = async (e) => {
     e.preventDefault()
@@ -120,6 +106,7 @@ const Registration = () => {
       
     } catch (error) {
       console.log('Error', error.message)
+      setErrorMessage(error.message)
     }
 
     console.log(userData)
@@ -158,8 +145,11 @@ const Registration = () => {
 
               <input type='text' id='email' placeholder='Email id' onChange={changeHandler} onBlur={blurHandler} required />
               {errors.email && <small style={{color: 'red'}}>{errors.email}</small>}
-              <input type={showPassword ? 'text' : 'password'} id='password' placeholder='Password' onChange={changeHandler} onBlur={blurHandler} required />
-              {<small onClick={() => setShowPassword(prev => !prev)} className='toggle-pass-visibility'>show password</small>}<br></br>
+
+              <div className='password-wrapper'>
+                <input type={showPassword ? 'text' : 'password'} id='password' placeholder='Password' onChange={changeHandler} onBlur={blurHandler} required />
+                <span className='eye-icon' onClick={() => setShowPassword(prev => !prev)}>{showPassword ? <FaEyeSlash /> : <FaEye />}</span>
+              </div>
               {errors.password && <small style={{color: 'red'}}>{errors.password}</small>}
 
               <input type='text' id='mobile' value={userData.mobile} placeholder='Mobile number' onChange={handleNumberInput} required />
@@ -183,6 +173,17 @@ const Registration = () => {
               <button type='submit' className='submit-button'>Register</button>
             </div>
         </form>
+
+        {errorMessage && (
+        <div className="error-modal">
+          <div className="modal-content">
+            <p>{errorMessage}</p>
+            <button onClick={closeErrorModal} className="close-button">Close</button>
+          </div>
+        </div>
+        )}
+
+
     </div>
   );
 };

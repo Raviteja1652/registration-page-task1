@@ -14,7 +14,7 @@ const WelcomePage = () => {
 
   useEffect(() => {
     if (showUsers) {
-      const fetchUsers = async () => {
+      const fetchUsers = ( async() => {
         const usersRef = ref(db, 'users/');
         const snapshot = await get(usersRef);
         if (snapshot.exists()) {
@@ -27,8 +27,7 @@ const WelcomePage = () => {
         } else {
           console.log("No users data is available");
         }
-      };
-      fetchUsers();
+      })()
     }
   }, [showUsers]);
 
