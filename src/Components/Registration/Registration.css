@@ -31,6 +31,14 @@
     cursor: pointer;
 }
 
+.toggle-pass-visibility {
+    margin-left: 0.7rem;
+    margin-top: 0;
+    padding: 0;
+    color: rgb(96, 96, 239);
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .registration-form {
         width: 85%;

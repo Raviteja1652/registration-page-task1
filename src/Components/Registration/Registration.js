@@ -14,10 +14,14 @@ const Registration = () => {
     password: '',
     mobile: '',
     country: '',
+    state: '',
+    city: '',
     zip: ''
   }
   const [userData, setUserData] = useState(initialState)
   const [countries, setCountries] = useState([])
+  const [states, setStates] = useState([])
+  const [cities, setCities] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({password: '', email: ''})
   const history = useHistory()
@@ -29,53 +33,63 @@ const Registration = () => {
       setUserData(location.state.user);
     }
 
-    axios.get('https://restcountries.com/v3.1/all')
+    axios.get('https://api.countrystatecity.in/v1/countries', {
+      headers: {"X-CSCAPI-KEY": "QTM0RVlRQ0pReUZ2UVhuamt4SGpORzVXaHppVk5wRUpMM1A2bG5qZA=="}
+    })
       .then(response => {
-        setCountries(response.data.map(country => country.name.common))
+        setCountries(response.data.map(country => ({ name: country.name, iso2: country.iso2})))
       })
       .catch(error => console.log(error))
-  }, [id])
+  }, [id, location.state])
 
   const validateEmail = (mail_id) => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return emailRegex.test(mail_id);
+    if (!mail_id.includes('@')) return false
+    const parts = mail_id.split('@')
+    if (parts.length !== 2 || !parts[1].includes('.') || parts[1].length < 5) return false
+    
+    return parts[1].split('.').every(part => part.length > 1)
   }
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[\W_]).{7,}$/;
-    return passwordRegex.test(password);
+    if (password.length < 7) return false
+    let hasUpper = false, hasSpecial = false
+    for (let char of password) {
+      if (char === char.toUpperCase() && isNaN(char)) hasUpper = true
+      if (!/[a-zA-Z0-9]/.test(char)) hasSpecial = true
+    }
+    return hasSpecial && hasUpper
   };
 
-  const changeHandler = (e) => {
-    setUserData({...userData, [e.target.id]: e.target.value})
+  const changeHandler = async (e) => {
+    const { id, value } = e.target
+    setUserData({...userData, [id]: value})
+
+    if (id === 'country') {
+      setUserData(prev => ({ ...prev, country: value }))
+      try {
+        const res = await axios.get(`https://api.countrystatecity.in/v1/countries/${value}/states`, {
+          headers: {"X-CSCAPI-KEY": "QTM0RVlRQ0pReUZ2UVhuamt4SGpORzVXaHppVk5wRUpMM1A2bG5qZA=="}
+        })
+        setStates(res.data)
+        setCities([])
+      } catch (error) {
+        console.log(error)
+      }
+    } else if (id === 'state') {
+      try {
+        const res = await axios.get(`https://api.countrystatecity.in/v1/countries/${userData.country}/states/${value}/cities`, {
+          headers: {"X-CSCAPI-KEY": "QTM0RVlRQ0pReUZ2UVhuamt4SGpORzVXaHppVk5wRUpMM1A2bG5qZA=="}
+        })
+        setCities(res.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
   };
 
 
   const submitHandler = async (e) => {
     e.preventDefault()
-
-    if (!validatePassword(userData.password)) {
-      setErrors(prevState => ({
-        ...prevState, 
-        password: 'Password must be 7 characters long and should include a special character and a capital letter.'
-      }))
-      return
-    } else {
-      setErrors(prev => ({...prev, password: ''}))
-    }
-
-    if (!validateEmail(userData.email)) {
-      setErrors(prevState => ({
-        ...prevState,
-        email: 'Please enter a valid email address.'
-      }))
-      return
-    } else {
-      setErrors(prevState => ({
-        ...prevState,
-        email: ''
-      }))
-    }
 
     try {
       if (location.state && location.state.user) {
@@ -100,17 +114,15 @@ const Registration = () => {
         })
       }
 
-      history.push({
-        pathname: '/welcome',
-        state: { firstName: userData.firstName, lastName: userData.lastName }
-      })
+      localStorage.setItem('firstName', userData.firstName)
+      localStorage.setItem('lastName', userData.lastName)
+      history.push('/welcome')
       
     } catch (error) {
       console.log('Error', error.message)
     }
 
     console.log(userData)
-    
   };
 
   const handleNumberInput = (e) => {
@@ -118,7 +130,23 @@ const Registration = () => {
     if (/^\d*$/.test(value)) {
       setUserData({ ...userData, [e.target.id]: value });
     }
-  }; 
+  };
+
+  const validation = (id, value) => {
+    if (id === 'email') {
+      if (!validateEmail(value)) {
+        setErrors(prev => ({...prev, email: 'Please enter a valid email address.'}))
+      } else setErrors(prev => ({...prev, email:''}))
+    } else if (id === 'password') {
+      if (!validatePassword(value)) {
+        setErrors(prev => ({...prev, password: 'Password must be 8 characters long and should contain a special character and a capital letter.'}))
+      } else setErrors(prev => ({...prev, password: ''}))
+    }
+  } 
+
+  const blurHandler = (e) => {
+    validation(e.target.id, e.target.value)
+  }
 
   return (
     <div>
@@ -127,15 +155,28 @@ const Registration = () => {
             <div>
               <input type='text' id='firstName' placeholder='First Name' onChange={changeHandler} required />
               <input type='text' id='lastName' placeholder='Last Name' onChange={changeHandler} required />
-              <input type='email' id='email' placeholder='Email id' onChange={changeHandler} required />
+
+              <input type='text' id='email' placeholder='Email id' onChange={changeHandler} onBlur={blurHandler} required />
               {errors.email && <small style={{color: 'red'}}>{errors.email}</small>}
-              <input type='password' id='password' placeholder='Password' onChange={changeHandler} required />
+              <input type={showPassword ? 'text' : 'password'} id='password' placeholder='Password' onChange={changeHandler} onBlur={blurHandler} required />
+              {<small onClick={() => setShowPassword(prev => !prev)} className='toggle-pass-visibility'>show password</small>}<br></br>
               {errors.password && <small style={{color: 'red'}}>{errors.password}</small>}
+
               <input type='text' id='mobile' value={userData.mobile} placeholder='Mobile number' onChange={handleNumberInput} required />
 
               <select id='country' onChange={changeHandler}>
                 <option>Select Country</option>
-                {countries.map(country => <option key={country}>{country}</option>)}
+                {countries.map(country => <option key={country.iso2} value={country.iso2}>{country.name}</option>)}
+              </select>
+
+              <select id='state' onChange={changeHandler}>
+                <option>Select State</option>
+                {states.map(state => <option key={state.iso2} value={state.iso2}>{state.name}</option>)}
+              </select>
+
+              <select id='city' onChange={changeHandler}>
+                <option>Select City</option>
+                {cities.map(city => <option key={city.name} value={city.name}>{city.name}</option>)}
               </select>
 
               <input type='text' id='zip' value={userData.zip} placeholder='Zip Code' onChange={handleNumberInput} />

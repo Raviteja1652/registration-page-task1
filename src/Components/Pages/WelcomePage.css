@@ -14,3 +14,16 @@
     cursor: pointer;
     text-decoration: underline;
 }
+
+.logout-button {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    background-color: rgb(245, 91, 91);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: large;
+    border-radius: 6px;
+    cursor: pointer;
+}

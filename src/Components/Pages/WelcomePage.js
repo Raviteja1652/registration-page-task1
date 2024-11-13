@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import UsersData from './UsersData'
 import './WelcomePage.css'
 import { db } from '../../firebase'
@@ -8,8 +8,9 @@ import { ref, get, update, remove } from 'firebase/database'
 const WelcomePage = () => {
   const [showUsers, setShowUsers] = useState(false)
   const [users, setUsers] = useState([])
-  const location = useLocation()
-  const { firstName, lastName } = location.state || {}
+  const firstName = localStorage.getItem('firstName')
+  const lastName = localStorage.getItem('lastName')
+  const history = useHistory()
 
   useEffect(() => {
     if (showUsers) {
@@ -33,9 +34,16 @@ const WelcomePage = () => {
 
   const usersToggleHandler = () => setShowUsers(prev => !prev)
 
+  const logoutHandler = () => {
+    localStorage.removeItem('firstName')
+    localStorage.removeItem('lastName')
+    history.push('/')
+  }
+
   return (
     <div className='welcome-container'>
         <h2>Welcome to the page, {firstName} {lastName}</h2>
+        <button className='logout-button' onClick={logoutHandler}>Logout</button>
         <Link to='#' className='users-toggle-button' onClick={usersToggleHandler}>
           {showUsers ? 'Hide Users Data' : 'Show Users Data'}
         </Link>
